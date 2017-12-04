@@ -7,6 +7,7 @@ declare const IonicDeploy: IonicDeploy;
 @Injectable()
 export class IonicProDeployService {
   updatePresent = false;
+  downloadAvailable = false;
 
   constructor() { }
 
@@ -56,6 +57,7 @@ export class IonicProDeployService {
         switch (typeof res) {
           case 'string':
             if (res === 'true') {
+              this.downloadAvailable = true;
               // Download complete or present on device
               observer.complete();
             } else {

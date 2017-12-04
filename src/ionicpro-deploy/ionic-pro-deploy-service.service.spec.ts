@@ -2,13 +2,14 @@ import { TestBed, inject } from '@angular/core/testing';
 
 import { IonicProDeployService } from './ionic-pro-deploy-service.service';
 import { IonicProConfig, IonicDeploy } from './ionic-pro-deploy.interfaces';
+import { Observable } from 'rxjs/Observable';
 
 // Setup global variable
 window['IonicDeploy'] = {};
 const deploy: IonicDeploy = window['IonicDeploy'];
 
 // Send deploy result
-const deployCallbacks = (success = null, failure = null) => {
+const deployCallbacks = (success, failure = null) => {
   return (resolve, reject) => {
     success ? resolve(success) : reject(failure);
   };
@@ -71,5 +72,52 @@ describe('IonicProDeployService', () => {
         expect(service.updatePresent).toBeFalsy();
       });
     }));
+  });
+
+  describe('download function', () => {
+    it('should return an observable', inject([IonicProDeployService], (service: IonicProDeployService) => {
+      deploy.download = deployCallbacks('true');
+      const obs = service.download();
+      expect(obs).toEqual(jasmine.any(Observable));
+    }));
+
+    describe('should report', () => {
+      it('progress when number emitted', done => {
+        // Setup download progress
+        const progress: number[] = [];
+        for (let i = 0; i <= 100; i += 10) {
+          progress.push(i);
+        }
+
+        deploy.download = (success, error) => {
+            for (const step of progress) {
+              success(step);
+            }
+        };
+
+        // Inject service and test
+        inject([IonicProDeployService], (service: IonicProDeployService) => {
+          let i = 0;
+          service.download().subscribe(percent => {
+            expect(percent).toEqual(progress[i]);
+            if (++i === progress.length) {
+              done();
+            }
+          });
+        })();
+      });
+
+      it('complete when "true" emmitted', done => {
+        deploy.download = deployCallbacks('true');
+        inject([IonicProDeployService], (service: IonicProDeployService) => {
+          const cb = () => null;
+          expect(service.downloadAvailable).toBeFalsy();
+          service.download().subscribe(cb, cb, () => {
+            expect(service.downloadAvailable).toBeTruthy();
+            done();
+          });
+        })();
+      });
+    });
   });
 });
