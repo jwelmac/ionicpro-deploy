@@ -26,7 +26,7 @@ describe('IonicProDeployService', () => {
     expect(service).toBeTruthy();
   }));
 
-  describe('init function', () => {
+  describe('init method', () => {
     it('gets called with config',  inject([IonicProDeployService], (service: IonicProDeployService) => {
       deploy.init = (proConfig: IonicProConfig, success, failure) => null;
       spyOn(deploy, 'init');
@@ -39,10 +39,11 @@ describe('IonicProDeployService', () => {
     }));
   });
 
-  describe('check function', () => {
+  describe('check method', () => {
     it('resolves to true when success called with true',  inject([IonicProDeployService], async (service: IonicProDeployService) => {
       deploy.check = deployCallbacks('true');
       spyOn(deploy, 'check');
+      expect(service.updatePresent).toBeNull();
       const result = await service.check();
       expect(deploy.check).toHaveBeenCalled();
       expect(result).toBeTruthy();
@@ -52,29 +53,27 @@ describe('IonicProDeployService', () => {
     it('resolves to false when success called with false',  inject([IonicProDeployService], async (service: IonicProDeployService) => {
       deploy.check = deployCallbacks('false');
       spyOn(deploy, 'check');
+      expect(service.updatePresent).toBeNull();
       const result = await service.check();
       expect(deploy.check).toHaveBeenCalled();
       expect(result).toBeFalsy();
-      expect(service.updatePresent).toBeFalsy();
+      expect(service.updatePresent).toEqual(false);
     }));
 
     it('rejects when failure called',  inject([IonicProDeployService], async (service: IonicProDeployService) => {
-      // Ensure value set to true
-      service.updatePresent = true;
-      expect(service.updatePresent).toBeTruthy();
-
       const error = 'No updates available';
       deploy.check = deployCallbacks(null, error);
       spyOn(deploy, 'check');
+      expect(service.updatePresent).toBeNull();
       service.check().catch(res => {
         expect(res).toEqual(error);
         expect(deploy.check).toHaveBeenCalled();
-        expect(service.updatePresent).toBeFalsy();
+        expect(service.updatePresent).toEqual(false);
       });
     }));
   });
 
-  describe('download function', () => {
+  describe('download method', () => {
     it('should return an observable', inject([IonicProDeployService], (service: IonicProDeployService) => {
       deploy.download = deployCallbacks('true');
       const obs = service.download();
@@ -114,6 +113,30 @@ describe('IonicProDeployService', () => {
           expect(service.downloadAvailable).toBeFalsy();
           service.download().subscribe(cb, cb, () => {
             expect(service.downloadAvailable).toBeTruthy();
+            done();
+          });
+        })();
+      });
+
+      it('handles errors appropriately', done => {
+        const err = 'Error fetching download';
+        deploy.download = deployCallbacks(null, err);
+        inject([IonicProDeployService], (service: IonicProDeployService) => {
+          const cb = () => null;
+          service.download().subscribe(cb, (error) => {
+            expect(error).toEqual(err);
+            done();
+          });
+        })();
+      });
+
+      it('throws errors if success not "true"', done => {
+        const success = 'false';
+        deploy.download = deployCallbacks(success);
+        inject([IonicProDeployService], (service: IonicProDeployService) => {
+          const cb = () => null;
+          service.download().subscribe(cb, (error) => {
+            expect(error).toEqual(success);
             done();
           });
         })();

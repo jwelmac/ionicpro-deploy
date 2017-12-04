@@ -6,7 +6,10 @@ declare const IonicDeploy: IonicDeploy;
 
 @Injectable()
 export class IonicProDeployService {
-  updatePresent = false;
+  private _updatePresent = null;
+  get updatePresent() {
+    return this._updatePresent;
+  }
   downloadAvailable = false;
 
   constructor() { }
@@ -35,13 +38,13 @@ export class IonicProDeployService {
     return new Promise((resolve, reject) => {
       IonicDeploy.check(resolve, reject);
     })
-    .then((res: string) => {
+    .then(/* istanbul ignore next */(res: string) => {
       const success = res === 'true';
-      this.updatePresent = !!success;
+      this._updatePresent = !!success;
       return success;
     })
-    .catch((rej: string) => {
-      this.updatePresent = false;
+    .catch(/* istanbul ignore next */(rej: string) => {
+      this._updatePresent = false;
       console.log(rej);
       return rej;
     });
