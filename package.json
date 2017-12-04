@@ -5,12 +5,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "npm run clean && tsc -p src/tsconfig.app.json",
     "test": "karma start",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "clean": "rm -rf dist/*"
+    "clean": "rm -rf dist/* && rm -r npm-debug.log*"
   },
+  "main": "dist/index.js",
   "private": true,
   "dependencies": {
     "@angular/animations": "^5.0.0",
