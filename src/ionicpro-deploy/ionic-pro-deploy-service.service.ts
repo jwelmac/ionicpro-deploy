@@ -11,6 +11,7 @@ export class IonicProDeployService {
     return this._updatePresent;
   }
   downloadAvailable = false;
+  extractComplete = false;
 
   constructor() { }
 
@@ -70,7 +71,7 @@ export class IonicProDeployService {
       if (!this.downloadAvailable) {
         observer.error('No download available');
       } else {
-        const success = this.getUpdateSuccessCallback(observer, 'done');
+        const success = this.getUpdateSuccessCallback(observer, 'done', () => this.extractComplete = true);
         const error = (err: string) => observer.error(err);
         IonicDeploy.extract(success, error);
       }

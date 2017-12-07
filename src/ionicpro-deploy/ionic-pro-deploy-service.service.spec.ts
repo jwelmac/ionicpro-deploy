@@ -183,8 +183,9 @@ describe('IonicProDeployService', () => {
         inject([IonicProDeployService], (service: IonicProDeployService) => {
           const cb = () => null;
           service.downloadAvailable = true;
+          expect(service.extractComplete).toBeFalsy();
           service.extract().subscribe(cb, cb, () => {
-            expect(service.downloadAvailable).toBeTruthy();
+            expect(service.extractComplete).toBeTruthy();
             done();
           });
         })();
@@ -197,6 +198,7 @@ describe('IonicProDeployService', () => {
           const cb = () => null;
           service.downloadAvailable = true;
           service.extract().subscribe(cb, (error) => {
+            expect(service.extractComplete).toBeFalsy();
             expect(error).toEqual(err);
             done();
           });
@@ -210,6 +212,7 @@ describe('IonicProDeployService', () => {
           const cb = () => null;
           service.downloadAvailable = false;
           service.extract().subscribe(cb, (error) => {
+            expect(service.extractComplete).toBeFalsy();
             expect(error).toEqual(errorMessage);
             done();
           });
@@ -223,6 +226,7 @@ describe('IonicProDeployService', () => {
           const cb = () => null;
           service.downloadAvailable = true;
           service.extract().subscribe(cb, (error) => {
+            expect(service.extractComplete).toBeFalsy();
             expect(error).toEqual(success);
             done();
           });
