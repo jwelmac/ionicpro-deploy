@@ -56,11 +56,43 @@ export class IonicProDeployService {
    */
   download(): Observable<number> {
     return Observable.create((observer: any) => {
-      const success = (res: string) => {
+      const success = this.getUpdateSuccessCallback(observer, 'true', () => this.downloadAvailable = true);
+      const error = (err: string) => observer.error(err);
+      IonicDeploy.download(success, error);
+    });
+  }
+
+  /**
+   * Extract a downloaded archive
+   */
+  extract() {
+    return Observable.create((observer: any) => {
+      if (!this.downloadAvailable) {
+        observer.error('No download available');
+      } else {
+        const success = this.getUpdateSuccessCallback(observer, 'done');
+        const error = (err: string) => observer.error(err);
+        IonicDeploy.extract(success, error);
+      }
+    });
+  }
+
+  /**
+   * Create a success callback for a function that will return
+   * integer showing progress over time or
+   * string indicating process complete
+   * @param observer Observer to return updates to subscribers
+   * @param completionString String to indicate process complete
+   * @param completeCallback Callback to run when process complete
+   */
+  private getUpdateSuccessCallback(observer: any, completionString: string, completeCallback?: Function) {
+      return (res: string) => {
         switch (typeof res) {
           case 'string':
-            if (res === 'true') {
-              this.downloadAvailable = true;
+            if (res === completionString) {
+              if (completeCallback != null) {
+                completeCallback();
+              }
               // Download complete or present on device
               observer.complete();
             } else {
@@ -73,9 +105,6 @@ export class IonicProDeployService {
             break;
         }
       };
-      const error = (err: string) => observer.error(err);
-      IonicDeploy.download(success, error);
-    });
   }
 
 }
