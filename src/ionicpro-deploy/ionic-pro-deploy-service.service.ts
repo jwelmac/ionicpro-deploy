@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { IonicDeploy, IonicProConfig } from './ionic-pro-deploy.interfaces';
+import { IonicDeploy, IonicProConfig, IonicDeployInfo } from './ionic-pro-deploy.interfaces';
 import { Observable } from 'rxjs/Observable';
-import { IonicDeployInfo } from '../index';
 
 declare const IonicDeploy: IonicDeploy;
 
@@ -13,6 +12,11 @@ export class IonicProDeployService {
   }
   downloadAvailable = false;
   extractComplete = false;
+  currentInfo: IonicDeployInfo;
+  _versions: Set<string> = new Set();
+  get versions(): string[] {
+    return Array.from(this._versions);
+  }
 
   constructor() { }
 
@@ -23,6 +27,8 @@ export class IonicProDeployService {
   init(config: IonicProConfig): Promise<any> {
     return new Promise((resolve, reject) => {
       IonicDeploy.init(config, resolve, reject);
+    }).then(/* istanbul ignore next */async () => {
+      this.currentInfo = await this.info();
     });
   }
 
@@ -96,9 +102,36 @@ export class IonicProDeployService {
    * Retrieve information about the current installed build
    * i.e. Get info on current version for this device
    */
-  info(): Promise<IonicDeployInfo | string> {
+  info(): Promise<IonicDeployInfo> {
     return new Promise((resolve, reject) => {
       IonicDeploy.info(resolve, reject);
+    }).then(/* istanbul ignore next */(res: IonicDeployInfo) => {
+      this.currentInfo = res;
+      return res;
+    });
+  }
+
+  /**
+   * List downloaded versions on this device
+   */
+  getVersions(): Promise<string[] | string> {
+    return new Promise((resolve, reject) => {
+      IonicDeploy.getVersions(resolve, reject);
+    }).then(/* istanbul ignore next */(res: string[]) => {
+      this._versions = new Set(res);
+      return res;
+    });
+  }
+
+  /**
+   * List downloaded versions on this device
+   */
+  deleteVersion(version: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      IonicDeploy.deleteVersion(version, resolve, reject);
+    }).then(/* istanbul ignore next */() => {
+      this._versions.delete(version);
+      return version;
     });
   }
 
@@ -110,21 +143,18 @@ export class IonicProDeployService {
    * @param completionString String to indicate process complete
    * @param completeCallback Callback to run when process complete
    */
-  private getProgressSuccessCallback(observer: any, completionString: string, completeCallback?: Function) {
+  private getProgressSuccessCallback(observer: any, completionString: string, completeCallback: Function) {
       return (res: string) => {
         switch (typeof res) {
           case 'string':
             if (res === completionString) {
-              if (completeCallback != null) {
-                completeCallback();
-              }
-              // Download complete or present on device
+              completeCallback();
               observer.complete();
             } else {
               observer.error(res);
             }
             break;
-          // Return download percentage
+          // Return progress percentage
           case 'number':
             observer.next(+res);
             break;

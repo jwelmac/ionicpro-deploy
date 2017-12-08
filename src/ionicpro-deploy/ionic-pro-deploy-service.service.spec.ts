@@ -15,6 +15,7 @@ const deployCallbacks = (success, failure = null) => {
     success ? resolve(success) : reject(failure);
   };
 };
+const cb = () => null;
 
 describe('IonicProDeployService', () => {
   beforeEach(() => {
@@ -110,7 +111,6 @@ describe('IonicProDeployService', () => {
       it('complete when "true" emmitted', done => {
         deploy.download = deployCallbacks('true');
         inject([IonicProDeployService], (service: IonicProDeployService) => {
-          const cb = () => null;
           expect(service.downloadAvailable).toBeFalsy();
           service.download().subscribe(cb, cb, () => {
             expect(service.downloadAvailable).toBeTruthy();
@@ -123,7 +123,6 @@ describe('IonicProDeployService', () => {
         const err = 'Error fetching download';
         deploy.download = deployCallbacks(null, err);
         inject([IonicProDeployService], (service: IonicProDeployService) => {
-          const cb = () => null;
           service.download().subscribe(cb, (error) => {
             expect(error).toEqual(err);
             done();
@@ -135,7 +134,6 @@ describe('IonicProDeployService', () => {
         const success = 'false';
         deploy.download = deployCallbacks(success);
         inject([IonicProDeployService], (service: IonicProDeployService) => {
-          const cb = () => null;
           service.download().subscribe(cb, (error) => {
             expect(error).toEqual(success);
             done();
@@ -182,7 +180,6 @@ describe('IonicProDeployService', () => {
       it('complete when "done" emmitted', done => {
         deploy.extract = deployCallbacks('done');
         inject([IonicProDeployService], (service: IonicProDeployService) => {
-          const cb = () => null;
           service.downloadAvailable = true;
           expect(service.extractComplete).toBeFalsy();
           service.extract().subscribe(cb, cb, () => {
@@ -196,7 +193,6 @@ describe('IonicProDeployService', () => {
         const err = 'Error fetching extract';
         deploy.extract = deployCallbacks(null, err);
         inject([IonicProDeployService], (service: IonicProDeployService) => {
-          const cb = () => null;
           service.downloadAvailable = true;
           service.extract().subscribe(cb, (error) => {
             expect(service.extractComplete).toBeFalsy();
@@ -210,7 +206,6 @@ describe('IonicProDeployService', () => {
         const errorMessage = 'No download available';
         deploy.extract = deployCallbacks('done');
         inject([IonicProDeployService], (service: IonicProDeployService) => {
-          const cb = () => null;
           service.downloadAvailable = false;
           service.extract().subscribe(cb, (error) => {
             expect(service.extractComplete).toBeFalsy();
@@ -224,7 +219,6 @@ describe('IonicProDeployService', () => {
         const success = 'true';
         deploy.extract = deployCallbacks(success);
         inject([IonicProDeployService], (service: IonicProDeployService) => {
-          const cb = () => null;
           service.downloadAvailable = true;
           service.extract().subscribe(cb, (error) => {
             expect(service.extractComplete).toBeFalsy();
@@ -266,7 +260,7 @@ describe('IonicProDeployService', () => {
     }));
   });
 
-  describe('redirect method', () => {
+  describe('info method', () => {
     it('resolves with deploy info', inject([IonicProDeployService], async (service: IonicProDeployService) => {
       const deployInfo: IonicDeployInfo = {
         deploy_uuid: '12345',
@@ -276,6 +270,7 @@ describe('IonicProDeployService', () => {
       deploy.info = deployCallbacks(deployInfo);
       const info = await service.info();
       expect(info).toEqual(deployInfo);
+      expect(service.currentInfo).toEqual(deployInfo);
     }));
 
     it('rejects with error message', inject([IonicProDeployService], async (service: IonicProDeployService) => {
@@ -283,6 +278,59 @@ describe('IonicProDeployService', () => {
       deploy.info = deployCallbacks(null, message);
       service.info().catch(err => {
         expect(err).toEqual(message);
+      });
+    }));
+  });
+
+  describe('getVersions method', () => {
+    it('resolves with array of uuids', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      const uuids = [
+        'abc1234',
+        'def5678',
+        'ghi91011'
+      ];
+      deploy.getVersions = deployCallbacks(uuids);
+      const versions = await service.getVersions();
+      expect(versions).toEqual(uuids);
+      expect(service.versions).toEqual(uuids);
+    }));
+
+    it('rejects with error message', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      const message = 'Error retrieveing versions';
+      deploy.info = deployCallbacks(null, message);
+      service.getVersions().catch(err => {
+        expect(err).toEqual(message);
+      });
+    }));
+  });
+
+  describe('deleteVersion method', () => {
+    let uuids, errMessage;
+    beforeEach(() => {
+      uuids = [
+        'abc1234',
+        'def5678',
+        'ghi91011'
+      ];
+      errMessage = 'Error attempting to remove the version';
+      deploy.deleteVersion = (version, success, failure) => {
+        uuids.includes(version) ? success() : failure(errMessage);
+      };
+    });
+
+    it('deletes a known uuid', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      service._versions = new Set(uuids);
+      const version = uuids[0];
+      await service.deleteVersion(version);
+      expect(service.versions.includes(version)).toBeFalsy();
+    }));
+
+    it('rejects with unknown uuid', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      const version = 'unknown';
+      service._versions = uuids;
+      service.deleteVersion(version).catch(err => {
+        expect(err).toEqual(errMessage);
+        expect(service.versions).toEqual(uuids);
       });
     }));
   });
