@@ -26,3 +26,12 @@ export interface IonicDeploy {
   deleteVersion: (version: string, success: Function, failure: Function) => void;
   parseUpdate: (jsonResponse: string | Object, success: Function, failure: Function) => void;
 }
+
+/**
+ * Ionic Deploy Information
+ */
+export interface IonicDeployInfo {
+  deploy_uuid: string;
+  channel: string;
+  binary_version: string;
+}

@@ -3,6 +3,7 @@ import { TestBed, inject } from '@angular/core/testing';
 import { IonicProDeployService } from './ionic-pro-deploy-service.service';
 import { IonicProConfig, IonicDeploy } from './ionic-pro-deploy.interfaces';
 import { Observable } from 'rxjs/Observable';
+import { IonicDeployInfo } from '../index';
 
 // Setup global variable
 window['IonicDeploy'] = {};
@@ -261,6 +262,27 @@ describe('IonicProDeployService', () => {
       service.redirect().catch(err => {
         expect(deploy.redirect).toHaveBeenCalled();
         expect(err).toEqual(error);
+      });
+    }));
+  });
+
+  describe('redirect method', () => {
+    it('resolves with deploy info', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      const deployInfo: IonicDeployInfo = {
+        deploy_uuid: '12345',
+        channel: 'Master',
+        binary_version: '1.0.0'
+      };
+      deploy.info = deployCallbacks(deployInfo);
+      const info = await service.info();
+      expect(info).toEqual(deployInfo);
+    }));
+
+    it('rejects with error message', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      const message = 'Unable to gather deploy info';
+      deploy.info = deployCallbacks(null, message);
+      service.info().catch(err => {
+        expect(err).toEqual(message);
       });
     }));
   });

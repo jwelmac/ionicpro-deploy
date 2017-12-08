@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IonicDeploy, IonicProConfig } from './ionic-pro-deploy.interfaces';
 import { Observable } from 'rxjs/Observable';
+import { IonicDeployInfo } from '../index';
 
 declare const IonicDeploy: IonicDeploy;
 
@@ -79,7 +80,7 @@ export class IonicProDeployService {
   }
 
   /**
-   * Redirect to the latest installed deployment
+   * Redirect to the latest version of the app on this device
    */
   redirect() {
     return new Promise((resolve, reject) => {
@@ -88,6 +89,16 @@ export class IonicProDeployService {
       } else {
         reject();
       }
+    });
+  }
+
+  /**
+   * Retrieve information about the current installed build
+   * i.e. Get info on current version for this device
+   */
+  info(): Promise<IonicDeployInfo | string> {
+    return new Promise((resolve, reject) => {
+      IonicDeploy.info(resolve, reject);
     });
   }
 
