@@ -57,7 +57,7 @@ export class IonicProDeployService {
    */
   download(): Observable<number> {
     return Observable.create((observer: any) => {
-      const success = this.getUpdateSuccessCallback(observer, 'true', () => this.downloadAvailable = true);
+      const success = this.getProgressSuccessCallback(observer, 'true', () => this.downloadAvailable = true);
       const error = (err: string) => observer.error(err);
       IonicDeploy.download(success, error);
     });
@@ -71,9 +71,22 @@ export class IonicProDeployService {
       if (!this.downloadAvailable) {
         observer.error('No download available');
       } else {
-        const success = this.getUpdateSuccessCallback(observer, 'done', () => this.extractComplete = true);
+        const success = this.getProgressSuccessCallback(observer, 'done', () => this.extractComplete = true);
         const error = (err: string) => observer.error(err);
         IonicDeploy.extract(success, error);
+      }
+    });
+  }
+
+  /**
+   * Redirect to the latest installed deployment
+   */
+  redirect() {
+    return new Promise((resolve, reject) => {
+      if (this.extractComplete) {
+        IonicDeploy.redirect(resolve, reject);
+      } else {
+        reject();
       }
     });
   }
@@ -86,7 +99,7 @@ export class IonicProDeployService {
    * @param completionString String to indicate process complete
    * @param completeCallback Callback to run when process complete
    */
-  private getUpdateSuccessCallback(observer: any, completionString: string, completeCallback?: Function) {
+  private getProgressSuccessCallback(observer: any, completionString: string, completeCallback?: Function) {
       return (res: string) => {
         switch (typeof res) {
           case 'string':

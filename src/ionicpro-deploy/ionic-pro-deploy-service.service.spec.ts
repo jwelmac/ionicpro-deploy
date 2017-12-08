@@ -35,7 +35,7 @@ describe('IonicProDeployService', () => {
         channel: 'Master'
       };
       service.init(config);
-      expect(deploy.init).toHaveBeenCalled();
+      expect(deploy.init).toHaveBeenCalledWith(config, jasmine.any(Function), jasmine.any(Function));
     }));
   });
 
@@ -233,5 +233,35 @@ describe('IonicProDeployService', () => {
         })();
       });
     });
+  });
+
+  describe('redirect method', () => {
+    it('resolves when extract complete', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      deploy.redirect = deployCallbacks('true');
+      spyOn(deploy, 'redirect');
+      service.extractComplete = true;
+      await service.redirect();
+      expect(deploy.redirect).toHaveBeenCalled();
+    }));
+
+    it('rejects when extract not complete', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      deploy.redirect = deployCallbacks(null);
+      spyOn(deploy, 'redirect');
+      service.extractComplete = false;
+      service.redirect().catch(err => {
+        expect(deploy.redirect).not.toHaveBeenCalled();
+      });
+    }));
+
+    it('rejects if error callback called', inject([IonicProDeployService], async (service: IonicProDeployService) => {
+      const error = 'error';
+      deploy.redirect = deployCallbacks(null, error);
+      spyOn(deploy, 'redirect');
+      service.extractComplete = true;
+      service.redirect().catch(err => {
+        expect(deploy.redirect).toHaveBeenCalled();
+        expect(err).toEqual(error);
+      });
+    }));
   });
 });
