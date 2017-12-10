@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { IonicProDeployService } from './ionic-pro-deploy-service.service';
+import { IonicProDeployService } from './ionic-pro-deploy.service';
 import { IonicProConfig, IonicDeploy, IonicDeployInfo } from './ionic-pro-deploy.interfaces';
 import { Observable } from 'rxjs/Observable';
 import { IonicProDeployModule } from './ionic-pro-deploy.module';
@@ -347,7 +347,7 @@ describe('IonicProDeployService', () => {
       service._versions = new Set(uuids);
       const version = uuids[0];
       await service.deleteVersion(version);
-      expect(service.versions.includes(version)).toBeFalsy();
+      expect(service.versions).not.toEqual(jasmine.objectContaining([version]));
     }));
 
     it('rejects with unknown uuid', inject([IonicProDeployService], async (service: IonicProDeployService) => {
