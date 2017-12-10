@@ -125,7 +125,8 @@ export class IonicProDeployService {
   }
 
   /**
-   * List downloaded versions on this device
+   * Delete a downloaded version on this device
+   * @param {string} version UUID of the deploy version downloaded to device
    */
   deleteVersion(version: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -153,9 +154,9 @@ export class IonicProDeployService {
   }
 
   /**
-   * Create a success callback for a function that will return
-   * integer showing progress over time or
-   * string indicating process complete
+   * Create a success callback for a function that will return:
+   *   - an integer showing progress over time or
+   *   - a string indicating process complete
    * @param observer Observer to return updates to subscribers
    * @param completionString String to indicate process complete
    * @param completeCallback Callback to run when process complete
