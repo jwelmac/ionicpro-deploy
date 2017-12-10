@@ -18,7 +18,12 @@ export class IonicProDeployService {
     return Array.from(this._versions);
   }
 
-  constructor() { }
+
+  constructor(config: IonicProConfig = null) {
+    if (config) {
+      this.init(config);
+    }
+  }
 
   /**
    * Initialize the deploy plugin
@@ -64,7 +69,8 @@ export class IonicProDeployService {
    */
   download(): Observable<number> {
     return Observable.create((observer: any) => {
-      const success = this.getProgressSuccessCallback(observer, 'true', () => this.downloadAvailable = true);
+      const done = () => this.downloadAvailable = true;
+      const success = this.getProgressSuccessCallback(observer, 'true', done);
       const error = (err: string) => observer.error(err);
       IonicDeploy.download(success, error);
     });
@@ -78,7 +84,8 @@ export class IonicProDeployService {
       if (!this.downloadAvailable) {
         observer.error('No download available');
       } else {
-        const success = this.getProgressSuccessCallback(observer, 'done', () => this.extractComplete = true);
+        const done = () => this.extractComplete = true;
+        const success = this.getProgressSuccessCallback(observer, 'done', done);
         const error = (err: string) => observer.error(err);
         IonicDeploy.extract(success, error);
       }

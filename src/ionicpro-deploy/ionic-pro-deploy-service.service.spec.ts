@@ -1,9 +1,9 @@
 import { TestBed, inject } from '@angular/core/testing';
 
 import { IonicProDeployService } from './ionic-pro-deploy-service.service';
-import { IonicProConfig, IonicDeploy } from './ionic-pro-deploy.interfaces';
+import { IonicProConfig, IonicDeploy, IonicDeployInfo } from './ionic-pro-deploy.interfaces';
 import { Observable } from 'rxjs/Observable';
-import { IonicDeployInfo } from '../index';
+import { IonicProDeployModule } from './ionic-pro-deploy.module';
 
 // Setup global variable
 window['IonicDeploy'] = {};
@@ -20,7 +20,7 @@ const cb = () => null;
 describe('IonicProDeployService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [IonicProDeployService]
+      imports: [IonicProDeployModule.forRoot()]
     });
   });
 
@@ -29,16 +29,41 @@ describe('IonicProDeployService', () => {
   }));
 
   describe('init method', () => {
-    it('gets called with config',  inject([IonicProDeployService], (service: IonicProDeployService) => {
-      deploy.init = (proConfig: IonicProConfig, success, failure) => null;
-      spyOn(deploy, 'init');
-      const config: IonicProConfig = {
-        appId: 'abc134',
-        channel: 'Master'
-      };
-      service.init(config);
-      expect(deploy.init).toHaveBeenCalledWith(config, jasmine.any(Function), jasmine.any(Function));
-    }));
+    const config: IonicProConfig = {
+      appId: 'abc134',
+      channel: 'Master'
+    };
+    deploy.init = (proConfig: IonicProConfig, success, failure) => null;
+
+    describe('deploy API init method', () => {
+      beforeEach(() => {
+        spyOn(deploy, 'init');
+      });
+
+      describe('called', () => {
+        it('with config',  inject([IonicProDeployService], (service: IonicProDeployService) => {
+          service.init(config);
+          expect(deploy.init).toHaveBeenCalledWith(config, jasmine.any(Function), jasmine.any(Function));
+        }));
+
+        it('when module forRoot called with config', () => {
+          const moduleWithProviders = IonicProDeployModule.forRoot(config);
+          expect(deploy.init).toHaveBeenCalled();
+        });
+
+        it('when object created with config', () => {
+          const service = new IonicProDeployService(config);
+          expect(deploy.init).toHaveBeenCalled();
+        });
+      });
+
+      describe('not called', () => {
+        it('when object created without config', () => {
+          const service = new IonicProDeployService();
+          expect(deploy.init).not.toHaveBeenCalled();
+        });
+      });
+    });
   });
 
   describe('check method', () => {
