@@ -69,10 +69,7 @@ export class IonicProDeployService {
    */
   download(): Observable<number> {
     return Observable.create((observer: any) => {
-      const done = () => this.downloadAvailable = true;
-      const success = this.getProgressSuccessCallback(observer, 'true', done);
-      const error = (err: string) => observer.error(err);
-      IonicDeploy.download(success, error);
+      this.observeProgress(observer, 'download', 'true', 'downloadAvailable', true);
     });
   }
 
@@ -84,10 +81,7 @@ export class IonicProDeployService {
       if (!this.downloadAvailable) {
         observer.error('No download available');
       } else {
-        const done = () => this.extractComplete = true;
-        const success = this.getProgressSuccessCallback(observer, 'done', done);
-        const error = (err: string) => observer.error(err);
-        IonicDeploy.extract(success, error);
+        this.observeProgress(observer, 'extract', 'done', 'extractComplete', true);
       }
     });
   }
@@ -140,6 +134,22 @@ export class IonicProDeployService {
       this._versions.delete(version);
       return version;
     });
+  }
+
+  /**
+   * Observe the progress of a method returning multiple values
+   * and return values in an observable stream
+   * @param {any} observer Observer to stream events with
+   * @param {string} deployMethod The IonicDeploy API method to execute
+   * @param {string} doneString String to indicate process completed successfully
+   * @param {string} successProp Class property to set when process completed successfully
+   * @param {any} successValue Value to set class property to when process completed successfully
+   */
+  private observeProgress(observer: any, deployMethod: string, doneString: string, successProp: string, successValue: any) {
+    const done = () => this[successProp] = successValue;
+    const success = this.getProgressSuccessCallback(observer, doneString, done);
+    const error = (err: string) => observer.error(err);
+    IonicDeploy[deployMethod](success, error);
   }
 
   /**
