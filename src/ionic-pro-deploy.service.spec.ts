@@ -6,8 +6,8 @@ import { Observable } from 'rxjs/Observable';
 import { IonicProDeployModule } from './ionic-pro-deploy.module';
 
 // Setup global variable
-window['IonicDeploy'] = {};
-const deploy: IonicDeploy = window['IonicDeploy'];
+let deploy: IonicDeploy;
+declare const IonicCordova;
 
 // Send deploy result
 const deployCallbacks = (success, failure = null) => {
@@ -22,6 +22,7 @@ describe('IonicProDeployService', () => {
     TestBed.configureTestingModule({
       imports: [IonicProDeployModule.forRoot()]
     });
+    deploy = IonicCordova.deploy;
   });
 
   it('should be created on injection', inject([IonicProDeployService], (service: IonicProDeployService) => {
@@ -33,10 +34,10 @@ describe('IonicProDeployService', () => {
       appId: 'abc134',
       channel: 'Master'
     };
-    deploy.init = (proConfig: IonicProConfig, success, failure) => null;
 
     describe('deploy API init method', () => {
       beforeEach(() => {
+        deploy.init = (proConfig: IonicProConfig, success, failure) => null;
         spyOn(deploy, 'init');
       });
 

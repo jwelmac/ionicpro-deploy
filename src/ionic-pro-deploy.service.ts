@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { IonicDeploy, IonicProConfig, IonicDeployInfo } from './ionic-pro-deploy.interfaces';
 import { Observable } from 'rxjs/Observable';
 
-declare const IonicDeploy: IonicDeploy;
+declare const IonicCordova;
+const IonicDeploy: IonicDeploy = IonicCordova && IonicCordova.deploy || null;
 
 @Injectable()
 export class IonicProDeployService {
