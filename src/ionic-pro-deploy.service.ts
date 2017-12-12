@@ -3,6 +3,7 @@ import { IonicDeploy, IonicProConfig, IonicDeployInfo } from './ionic-pro-deploy
 import { Observable } from 'rxjs/Observable';
 
 declare const IonicCordova;
+/* istanbul ignore next */
 const IonicDeploy: IonicDeploy = IonicCordova && IonicCordova.deploy || null;
 
 @Injectable()
