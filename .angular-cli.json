@@ -5,12 +5,11 @@
   },
   "apps": [
     {
-      "root": "src",
-      "outDir": "dist",
+      "root": "./",
       "polyfills": "polyfills.ts",
       "main": "index.ts",
       "test": "test.ts",
-      "tsconfig": "tsconfig.app.json",
+      "tsconfig": "tsconfig.dist.json",
       "testTsconfig": "tsconfig.spec.json",
       "scripts": []
     }

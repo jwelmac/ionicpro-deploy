@@ -1,8 +1,7 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../dist",
-    "baseUrl": "./",
+    "outDir": ".",
     "module": "es2015",
     "types": []
   },
@@ -10,6 +9,8 @@
     "test.ts",
     "**/*.spec.ts",
     "e2e",
-    "polyfills.ts"
+    "polyfills.ts",
+    "node_modules",
+    "coverage"
   ]
 }

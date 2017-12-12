@@ -5,33 +5,34 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "npm run clean && tsc -p src/tsconfig.app.json",
+    "build": "tsc -p tsconfig.dist.json",
     "test": "ng test --code-coverage --single-run",
+    "test:watch": "karma start",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "clean": "rm -rf dist/* && rm -r npm-debug.log*"
+    "clean": "rm src/{*.d.ts,*.js} && rm npm-debug.*",
+    "prepublish": "npm run build"
   },
-  "main": "dist/index.js",
+  "main": "index.js",
+  "files": [
+    "src/**/*.d.ts",
+    "src/**/*.js",
+    "index.d.ts",
+    "index.js"
+  ],
   "private": true,
   "dependencies": {
-    "@angular/animations": "^5.0.0",
     "@angular/common": "^5.0.0",
-    "@angular/compiler": "^5.0.0",
     "@angular/core": "^5.0.0",
-    "@angular/forms": "^5.0.0",
-    "@angular/http": "^5.0.0",
-    "@angular/platform-browser": "^5.0.0",
-    "@angular/platform-browser-dynamic": "^5.0.0",
-    "@angular/router": "^5.0.0",
     "core-js": "^2.4.1",
     "ionic-angular": "^3.9.2",
     "rxjs": "^5.5.2",
-    "zone.js": "^0.8.14"
+    "zone.js": "^0.8.14",
+    "cordova-plugin-ionic": "^2.0.3"
   },
   "devDependencies": {
     "@angular/cli": "1.5.3",
     "@angular/compiler-cli": "^5.0.0",
-    "@angular/language-service": "^5.0.0",
     "@types/jasmine": "~2.5.53",
     "@types/jasminewd2": "~2.0.2",
     "@types/node": "~6.0.60",
@@ -48,8 +49,5 @@
     "ts-node": "~3.2.0",
     "tslint": "~5.7.0",
     "typescript": "~2.4.2"
-  },
-  "peerDependencies": {
-    "cordova-plugin-ionic": "^2.0.3"
   }
 }

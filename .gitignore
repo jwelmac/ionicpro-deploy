@@ -43,3 +43,9 @@ Thumbs.db
 
 # Debug logs
 npm-debug.log*
+
+#Transpiled files
+src/*.d.ts
+src/*.js
+index.d.ts
+index.js
