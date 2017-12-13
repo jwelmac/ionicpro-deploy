@@ -23,7 +23,7 @@ export class IonicProDeployService {
 
   constructor(config: IonicProConfig = null) {
     /* istanbul ignore next */
-    this.deploy = IonicCordova && IonicCordova.deploy || null;
+    this.deploy = typeof IonicCordova !== 'undefined' && IonicCordova.deploy || null;
     if (config) {
       this.init(config);
     }
