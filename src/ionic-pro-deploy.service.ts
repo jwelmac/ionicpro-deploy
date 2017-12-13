@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { IonicDeploy, IonicProConfig, IonicDeployInfo } from './ionic-pro-deploy.interfaces';
 import { Observable } from 'rxjs/Observable';
+import { checkDeploy } from './ionic-pro-deploy.decorators';
 
 declare const IonicCordova;
-/* istanbul ignore next */
-const IonicDeploy: IonicDeploy = IonicCordova && IonicCordova.deploy || null;
 
 @Injectable()
 export class IonicProDeployService {
@@ -19,9 +18,12 @@ export class IonicProDeployService {
   get versions(): string[] {
     return Array.from(this._versions);
   }
+  deploy: IonicDeploy;
 
 
   constructor(config: IonicProConfig = null) {
+    /* istanbul ignore next */
+    this.deploy = IonicCordova && IonicCordova.deploy || null;
     if (config) {
       this.init(config);
     }
@@ -31,9 +33,10 @@ export class IonicProDeployService {
    * Initialize the deploy plugin
    * @param {IonicProConfig} config App configuration
    */
+  @checkDeploy
   init(config: IonicProConfig): Promise<any> {
     return new Promise((resolve, reject) => {
-      IonicDeploy.init(config, resolve, reject);
+      this.deploy.init(config, resolve, reject);
     }).then(/* istanbul ignore next */async () => {
       this.currentInfo = await this.info();
     });
@@ -49,9 +52,10 @@ export class IonicProDeployService {
    *     or currently unable to check for updates
    * Rejects with an error message if update information is not available
    */
+  @checkDeploy
   check(): Promise<boolean | string> {
     return new Promise((resolve, reject) => {
-      IonicDeploy.check(resolve, reject);
+      this.deploy.check(resolve, reject);
     })
     .then(/* istanbul ignore next */(res: string) => {
       const success = res === 'true';
@@ -69,6 +73,7 @@ export class IonicProDeployService {
    * Download an available and compatible update
    * @return {Observable<number>} Emits the download percentage until complete
    */
+  @checkDeploy
   download(): Observable<number> {
     return Observable.create((observer: any) => {
       this.observeProgress(observer, 'download', 'true', 'downloadAvailable', true);
@@ -78,6 +83,7 @@ export class IonicProDeployService {
   /**
    * Extract a downloaded archive
    */
+  @checkDeploy
   extract() {
     return Observable.create((observer: any) => {
       if (!this.downloadAvailable) {
@@ -91,10 +97,11 @@ export class IonicProDeployService {
   /**
    * Redirect to the latest version of the app on this device
    */
+  @checkDeploy
   redirect() {
     return new Promise((resolve, reject) => {
       if (this.extractComplete) {
-        IonicDeploy.redirect(resolve, reject);
+        this.deploy.redirect(resolve, reject);
       } else {
         reject();
       }
@@ -105,9 +112,10 @@ export class IonicProDeployService {
    * Retrieve information about the current installed build
    * i.e. Get info on current version for this device
    */
+  @checkDeploy
   info(): Promise<IonicDeployInfo> {
     return new Promise((resolve, reject) => {
-      IonicDeploy.info(resolve, reject);
+      this.deploy.info(resolve, reject);
     }).then(/* istanbul ignore next */(res: IonicDeployInfo) => {
       this.currentInfo = res;
       return res;
@@ -117,9 +125,10 @@ export class IonicProDeployService {
   /**
    * List downloaded versions on this device
    */
+  @checkDeploy
   getVersions(): Promise<string[] | string> {
     return new Promise((resolve, reject) => {
-      IonicDeploy.getVersions(resolve, reject);
+      this.deploy.getVersions(resolve, reject);
     }).then(/* istanbul ignore next */(res: string[]) => {
       this._versions = new Set(res);
       return res;
@@ -130,9 +139,10 @@ export class IonicProDeployService {
    * Delete a downloaded version on this device
    * @param {string} version UUID of the deploy version downloaded to device
    */
+  @checkDeploy
   deleteVersion(version: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      IonicDeploy.deleteVersion(version, resolve, reject);
+      this.deploy.deleteVersion(version, resolve, reject);
     }).then(/* istanbul ignore next */() => {
       this._versions.delete(version);
       return version;
@@ -152,7 +162,7 @@ export class IonicProDeployService {
     const done = () => this[successProp] = successValue;
     const success = this.getProgressSuccessCallback(observer, doneString, done);
     const error = (err: string) => observer.error(err);
-    IonicDeploy[deployMethod](success, error);
+    this.deploy[deployMethod](success, error);
   }
 
   /**
