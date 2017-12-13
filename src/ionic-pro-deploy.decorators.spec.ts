@@ -1,6 +1,5 @@
-import {checkDeploy} from './ionic-pro-deploy.decorators';
+import {checkDeploy, IonicDeployNotAvailableError} from './ionic-pro-deploy.decorators';
 import { Observable } from 'rxjs/Observable';
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 
 class Test {
   static result = 'Method call successful';
@@ -55,10 +54,9 @@ describe('@checkDeploy', () => {
   describe('checkDeployfactory', () => {
     // Setup test failure
     function testFailure(method: string, isPromise: boolean, done: Function) {
-      const errMessage = 'IonicCordova is not available.';
       const result = setupTest(false, method);
       const errCheck = err => {
-        expect(err).toEqual(errMessage);
+        expect(err).toEqual(IonicDeployNotAvailableError);
         done();
       };
       if (isPromise) {
