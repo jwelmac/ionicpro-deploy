@@ -25,7 +25,7 @@ export class IonicProDeployService {
     /* istanbul ignore next */
     this.deploy = typeof IonicCordova !== 'undefined' && IonicCordova.deploy || null;
     if (config) {
-      this.init(config);
+      this.init(config).catch(/* istanbul ignore next */err => console.error(err));
     }
   }
 
@@ -33,7 +33,7 @@ export class IonicProDeployService {
    * Initialize the deploy plugin
    * @param {IonicProConfig} config App configuration
    */
-  @checkDeploy
+  @checkDeploy()
   init(config: IonicProConfig): Promise<any> {
     return new Promise((resolve, reject) => {
       this.deploy.init(config, resolve, reject);
@@ -52,7 +52,7 @@ export class IonicProDeployService {
    *     or currently unable to check for updates
    * Rejects with an error message if update information is not available
    */
-  @checkDeploy
+  @checkDeploy()
   check(): Promise<boolean | string> {
     return new Promise((resolve, reject) => {
       this.deploy.check(resolve, reject);
@@ -73,7 +73,7 @@ export class IonicProDeployService {
    * Download an available and compatible update
    * @return {Observable<number>} Emits the download percentage until complete
    */
-  @checkDeploy
+  @checkDeploy(true)
   download(): Observable<number> {
     return Observable.create((observer: any) => {
       this.observeProgress(observer, 'download', 'true', 'downloadAvailable', true);
@@ -83,8 +83,8 @@ export class IonicProDeployService {
   /**
    * Extract a downloaded archive
    */
-  @checkDeploy
-  extract() {
+  @checkDeploy(true)
+  extract(): Observable<number> {
     return Observable.create((observer: any) => {
       if (!this.downloadAvailable) {
         observer.error('No download available');
@@ -97,7 +97,7 @@ export class IonicProDeployService {
   /**
    * Redirect to the latest version of the app on this device
    */
-  @checkDeploy
+  @checkDeploy()
   redirect() {
     return new Promise((resolve, reject) => {
       if (this.extractComplete) {
@@ -112,7 +112,7 @@ export class IonicProDeployService {
    * Retrieve information about the current installed build
    * i.e. Get info on current version for this device
    */
-  @checkDeploy
+  @checkDeploy()
   info(): Promise<IonicDeployInfo> {
     return new Promise((resolve, reject) => {
       this.deploy.info(resolve, reject);
@@ -125,7 +125,7 @@ export class IonicProDeployService {
   /**
    * List downloaded versions on this device
    */
-  @checkDeploy
+  @checkDeploy()
   getVersions(): Promise<string[] | string> {
     return new Promise((resolve, reject) => {
       this.deploy.getVersions(resolve, reject);
@@ -139,7 +139,7 @@ export class IonicProDeployService {
    * Delete a downloaded version on this device
    * @param {string} version UUID of the deploy version downloaded to device
    */
-  @checkDeploy
+  @checkDeploy()
   deleteVersion(version: string): Promise<string> {
     return new Promise((resolve, reject) => {
       this.deploy.deleteVersion(version, resolve, reject);
