@@ -70,20 +70,16 @@ describe('IonicProDeployService', () => {
   describe('check method', () => {
     it('resolves to true when success called with true',  inject([IonicProDeployService], async (service: IonicProDeployService) => {
       deploy.check = deployCallbacks('true');
-      spyOn(deploy, 'check');
       expect(service.updatePresent).toBeNull();
       const result = await service.check();
-      expect(deploy.check).toHaveBeenCalled();
       expect(result).toBeTruthy();
       expect(service.updatePresent).toBeTruthy();
     }));
 
     it('resolves to false when success called with false',  inject([IonicProDeployService], async (service: IonicProDeployService) => {
       deploy.check = deployCallbacks('false');
-      spyOn(deploy, 'check');
       expect(service.updatePresent).toBeNull();
       const result = await service.check();
-      expect(deploy.check).toHaveBeenCalled();
       expect(result).toBeFalsy();
       expect(service.updatePresent).toEqual(false);
     }));
@@ -259,10 +255,8 @@ describe('IonicProDeployService', () => {
   describe('redirect method', () => {
     it('resolves when extract complete', inject([IonicProDeployService], async (service: IonicProDeployService) => {
       deploy.redirect = deployCallbacks('true');
-      spyOn(deploy, 'redirect');
       service.extractComplete = true;
       await service.redirect();
-      expect(deploy.redirect).toHaveBeenCalled();
     }));
 
     it('rejects when extract not complete', inject([IonicProDeployService], async (service: IonicProDeployService) => {
