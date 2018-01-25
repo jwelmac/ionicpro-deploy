@@ -45,12 +45,12 @@ export class IonicProDeployService {
   /**
    * Check for updates from specified channel
    * @return {Promise<boolean | string>}
-   * Resolves with:
-   *   TRUE if updates are available and compatible with the current binary version
-   *   FALSE
-   *     if updates are available but incompatible with the current binary version
-   *     or currently unable to check for updates
-   * Rejects with an error message if update information is not available
+   * @fulfil {boolean}
+   *   - `true` if updates are available and compatible with the current binary version
+   *   - `false`
+   *     - if updates are available but incompatible with the current binary version
+   *     - or currently unable to check for updates
+   * @reject {string} - if update information is not available
    */
   @checkDeploy()
   check(): Promise<boolean | string> {
@@ -71,7 +71,8 @@ export class IonicProDeployService {
 
   /**
    * Download an available and compatible update
-   * @return {Observable<number>} Emits the download percentage until complete
+   * @return {Observable<number>} Emits the download percentage
+   * - completes when download complete
    */
   @checkDeploy(true)
   download(): Observable<number> {
@@ -82,6 +83,8 @@ export class IonicProDeployService {
 
   /**
    * Extract a downloaded archive
+   * @return {Observable<number>} Emits the extract percentage
+   * - completes when download complete
    */
   @checkDeploy(true)
   extract(): Observable<number> {
@@ -110,7 +113,7 @@ export class IonicProDeployService {
 
   /**
    * Retrieve information about the current installed build
-   * i.e. Get info on current version for this device
+   * @fulfill {IonicDeployInfo} - information about the current running version for this device
    */
   @checkDeploy()
   info(): Promise<IonicDeployInfo> {
@@ -124,6 +127,9 @@ export class IonicProDeployService {
 
   /**
    * List downloaded versions on this device
+   * @fulfill {string[]} - The UUIDs of the versions previously downloaded on the device
+   *
+   * - Limited to the number of versions indicated while installing the plugin
    */
   @checkDeploy()
   getVersions(): Promise<string[] | string> {

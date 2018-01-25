@@ -5,8 +5,8 @@
  * host: API host (default - https://api.ionicjs.com)
  */
 export interface IonicProConfig {
-  appId: string;
-  channel: string;
+  appId?: string;
+  channel?: string;
   host?: string;
 }
 
