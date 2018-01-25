@@ -11,7 +11,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "clean": "rm src/{*.d.ts,*.js}",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "main": "index.js",
   "files": [
@@ -20,7 +20,6 @@
     "index.d.ts",
     "index.js"
   ],
-  "private": true,
   "dependencies": {
     "@angular/common": "^5.0.0",
     "@angular/compiler": "^5.0.0",
