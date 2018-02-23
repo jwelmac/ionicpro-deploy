@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IonicDeploy, IonicProConfig, IonicDeployInfo } from './ionic-pro-deploy.interfaces';
+import { IonicDeploy, IonicProConfig, IonicDeployInfo, UpdateProgress } from './ionic-pro-deploy.interfaces';
 import { Observable } from 'rxjs/Observable';
 import { checkDeploy } from './ionic-pro-deploy.decorators';
 
@@ -77,9 +77,23 @@ export class IonicProDeployService {
    * - completes when update complete
    */
   @checkDeploy(true)
-  update(autoReload: boolean = true): Observable<number> {
-    const obs: Observable<number> = Observable.create((observer: any) => {
-      this.observeProgress(observer, 'download', 'true', 'extractComplete', true);
+  update(autoReload: boolean = true): Observable<UpdateProgress> {
+    let progress: UpdateProgress;
+    const errFunction = (observer) => (err: string) => observer.error(err);
+    const updateFn = (step: string) => percent => progress = {step, percent};
+
+    const obs: Observable<UpdateProgress> = Observable.create((observer: any) => {
+      this.download().subscribe(
+        updateFn('Downloading'),
+        errFunction(observer),
+        () => {
+          this.extract().subscribe(
+            updateFn('Extracting'),
+            errFunction(observer),
+            () => this.redirect()
+          );
+        }
+      );
     });
     obs.subscribe(null, null, async () => {
       if (autoReload) {

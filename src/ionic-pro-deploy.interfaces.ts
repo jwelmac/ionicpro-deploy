@@ -35,3 +35,11 @@ export interface IonicDeployInfo {
   channel: string;
   binary_version: string;
 }
+
+/**
+ * Update progress
+ */
+export interface UpdateProgress {
+  step: string;
+  percent: number;
+}
