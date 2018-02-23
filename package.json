@@ -1,6 +1,6 @@
 {
   "name": "ionicpro-deploy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -52,6 +52,6 @@
     "typescript": "~2.6.2"
   },
   "peerDependencies": {
-    "cordova-plugin-ionic": "^2.0.0"
+    "cordova-plugin-ionic": ">2.0.0"
   }
 }

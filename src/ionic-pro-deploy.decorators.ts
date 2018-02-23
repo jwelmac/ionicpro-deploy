@@ -15,7 +15,9 @@ export function checkDeploy(isObservable: boolean = false) {
         } else {
           // tslint:disable-next-line:max-line-length
           console.warn(`Tried calling IonicProDeployService.${propertyKey} but ${IonicDeployNotAvailableError}. Ensure cordova-plugin-ionic is installed or cordova is available.`);
-          return isObservable ? Observable.create(obs => obs.error(IonicDeployNotAvailableError)) : Promise.reject(IonicDeployNotAvailableError);
+          return isObservable
+            ? Observable.create(obs => obs.error(IonicDeployNotAvailableError))
+            : Promise.reject(IonicDeployNotAvailableError);
         }
     };
 

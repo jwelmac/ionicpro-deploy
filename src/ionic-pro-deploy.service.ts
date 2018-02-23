@@ -18,12 +18,12 @@ export class IonicProDeployService {
   get versions(): string[] {
     return Array.from(this._versions);
   }
-  deploy: IonicDeploy;
-
+  get deploy(): IonicDeploy {
+    return typeof IonicCordova !== 'undefined' && IonicCordova.deploy || null;
+  }
 
   constructor(config: IonicProConfig = null) {
     /* istanbul ignore next */
-    this.deploy = typeof IonicCordova !== 'undefined' && IonicCordova.deploy || null;
     if (config) {
       this.init(config).catch(/* istanbul ignore next */err => console.error(err));
     }
