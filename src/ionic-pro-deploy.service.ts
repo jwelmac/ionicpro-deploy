@@ -75,6 +75,24 @@ export class IonicProDeployService {
    * - completes when download complete
    */
   @checkDeploy(true)
+  update(autoReload: boolean = true): Observable<number> {
+    const obs: Observable<number> = Observable.create((observer: any) => {
+      this.observeProgress(observer, 'download', 'true', 'extractComplete', true);
+    });
+    obs.subscribe(null, null, async () => {
+      if (autoReload) {
+        await this.redirect();
+      }
+    });
+    return obs;
+  }
+
+  /**
+   * Download an available and compatible update
+   * @return {Observable<number>} Emits the download percentage
+   * - completes when download complete
+   */
+  @checkDeploy(true)
   download(): Observable<number> {
     return Observable.create((observer: any) => {
       this.observeProgress(observer, 'download', 'true', 'downloadAvailable', true);
@@ -92,7 +110,7 @@ export class IonicProDeployService {
       if (!this.downloadAvailable) {
         observer.error('No download available');
       } else {
-        this.observeProgress(observer, 'extract', 'done', 'extractComplete', true);
+        this.observeProgress(observer, 'extract', 'true', 'extractComplete', true);
       }
     });
   }

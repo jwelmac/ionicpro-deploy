@@ -17,6 +17,20 @@ const deployCallbacks = (success, failure = null) => {
 };
 const cb = () => null;
 
+
+function setupProgress(func: string) {
+  const progress: number[] = [];
+  for (let i = 0; i <= 100; i += 10) {
+    progress.push(i);
+  }
+  deploy[func] = (success, error) => {
+    for (const step of progress) {
+      success(step);
+    }
+  };
+  return progress;
+}
+
 describe('IonicProDeployService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -97,6 +111,89 @@ describe('IonicProDeployService', () => {
     }));
   });
 
+  describe('update method', () => {
+    it('should return an observable', inject([IonicProDeployService], (service: IonicProDeployService) => {
+      deploy.download = deployCallbacks('true');
+      const obs = service.update();
+      expect(obs).toEqual(jasmine.any(Observable));
+    }));
+
+    describe('should report', () => {
+      const method = 'update';
+
+      // it('progress when number emitted', done => {
+      //   // Setup download progress
+      //   const progress: number[] = setupProgress(method);
+
+      //   // Inject service and test
+      //   inject([IonicProDeployService], (service: IonicProDeployService) => {
+      //     let i = 0;
+      //     service[method]().subscribe(percent => {
+      //       expect(percent).toEqual(progress[i]);
+      //       if (++i === progress.length) {
+      //         done();
+      //       }
+      //     });
+      //   })();
+      // });
+
+      it('complete when "true" emmitted', done => {
+        deploy.download = deployCallbacks('true');
+        inject([IonicProDeployService], (service: IonicProDeployService) => {
+          expect(service.extractComplete).toBeFalsy();
+          service[method]().subscribe(cb, cb, () => {
+            expect(service.extractComplete).toBeTruthy();
+            done();
+          });
+        })();
+      });
+
+      it('calls redirect when no parameter given', done => {
+        deploy.download = deployCallbacks('true');
+        inject([IonicProDeployService], (service: IonicProDeployService) => {
+          spyOn(service, 'redirect');
+          service[method]().subscribe(cb, cb, () => {
+            expect(service.redirect).toHaveBeenCalled();
+            done();
+          });
+        })();
+      });
+
+      it('does not call redirect when parameter is false', done => {
+        deploy.download = deployCallbacks('true');
+        inject([IonicProDeployService], (service: IonicProDeployService) => {
+          spyOn(service, 'redirect');
+          service[method](false).subscribe(cb, cb, () => {
+            expect(service.redirect).not.toHaveBeenCalled();
+            done();
+          });
+        })();
+      });
+
+    //   it('handles errors appropriately', done => {
+    //     const err = 'Error fetching download';
+    //     deploy.download = deployCallbacks(null, err);
+    //     inject([IonicProDeployService], (service: IonicProDeployService) => {
+    //       service[method]().subscribe(cb, (error) => {
+    //         expect(error).toEqual(err);
+    //         done();
+    //       });
+    //     })();
+    //   });
+
+    //   it('throws errors if success not "true"', done => {
+    //     const success = 'false';
+    //     deploy.download = deployCallbacks(success);
+    //     inject([IonicProDeployService], (service: IonicProDeployService) => {
+    //       service[method]().subscribe(cb, (error) => {
+    //         expect(error).toEqual(success);
+    //         done();
+    //       });
+    //     })();
+    //   });
+    });
+  });
+
   describe('download method', () => {
     it('should return an observable', inject([IonicProDeployService], (service: IonicProDeployService) => {
       deploy.download = deployCallbacks('true');
@@ -107,16 +204,7 @@ describe('IonicProDeployService', () => {
     describe('should report', () => {
       it('progress when number emitted', done => {
         // Setup download progress
-        const progress: number[] = [];
-        for (let i = 0; i <= 100; i += 10) {
-          progress.push(i);
-        }
-
-        deploy.download = (success, error) => {
-            for (const step of progress) {
-              success(step);
-            }
-        };
+        const progress: number[] = setupProgress('download');
 
         // Inject service and test
         inject([IonicProDeployService], (service: IonicProDeployService) => {
@@ -175,16 +263,7 @@ describe('IonicProDeployService', () => {
     describe('should report', () => {
       it('progress when number emitted', done => {
         // Setup extract progress
-        const progress: number[] = [];
-        for (let i = 0; i <= 100; i += 10) {
-          progress.push(i);
-        }
-
-        deploy.extract = (success, error) => {
-            for (const step of progress) {
-              success(step);
-            }
-        };
+        const progress: number[] = setupProgress('extract');
 
         // Inject service and test
         inject([IonicProDeployService], (service: IonicProDeployService) => {
@@ -199,8 +278,8 @@ describe('IonicProDeployService', () => {
         })();
       });
 
-      it('complete when "done" emmitted', done => {
-        deploy.extract = deployCallbacks('done');
+      it('complete when "true" emmitted', done => {
+        deploy.extract = deployCallbacks('true');
         inject([IonicProDeployService], (service: IonicProDeployService) => {
           service.downloadAvailable = true;
           expect(service.extractComplete).toBeFalsy();
@@ -226,7 +305,7 @@ describe('IonicProDeployService', () => {
 
       it('throws errors if no download available', done => {
         const errorMessage = 'No download available';
-        deploy.extract = deployCallbacks('done');
+        deploy.extract = deployCallbacks('true');
         inject([IonicProDeployService], (service: IonicProDeployService) => {
           service.downloadAvailable = false;
           service.extract().subscribe(cb, (error) => {
@@ -237,8 +316,8 @@ describe('IonicProDeployService', () => {
         })();
       });
 
-      it('throws errors if success not "done"', done => {
-        const success = 'true';
+      it('throws errors if success not "true"', done => {
+        const success = 'done';
         deploy.extract = deployCallbacks(success);
         inject([IonicProDeployService], (service: IonicProDeployService) => {
           service.downloadAvailable = true;
@@ -355,3 +434,4 @@ describe('IonicProDeployService', () => {
     }));
   });
 });
+
