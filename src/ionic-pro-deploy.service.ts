@@ -73,8 +73,8 @@ export class IonicProDeployService {
    * Complete a full update cycle (download, extract) with or without redirect
    * @param {boolean} autoReload TRUE: Redirect when complete (default)
    *                             FALSE: Complete with no redirect
-   * @return {Observable<number>} Emits the download percentage
-   * - completes when download complete
+   * @return {Observable<number>} - Emits the download then extract percentage
+   * - completes when update complete
    */
   @checkDeploy(true)
   update(autoReload: boolean = true): Observable<number> {

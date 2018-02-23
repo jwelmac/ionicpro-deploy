@@ -63,7 +63,7 @@ Initialize the deploy plugin
 **config**: `IonicProConfig`
 -  App configuration
 
-
+-------------------------------------------
 
 ### check() 
 
@@ -79,6 +79,7 @@ Check for updates from specified channel
 - Rejects with error message `string` 
   - if update information is not available
 
+-------------------------------------------
 
 ### download() 
 
@@ -87,6 +88,8 @@ Download an available and compatible update
 **Returns**: `Observable<number>`
 - Emits the download percentage
 - completes when download complete
+
+-------------------------------------------
 
 ### update() 
 
@@ -102,7 +105,7 @@ Complete a full update cycle (download, extract) with or without redirect
 - Emits the download then extract percentage
 - completes when update complete
 
-
+-------------------------------------------
 ### extract() 
 
 Extract a downloaded archive
@@ -111,24 +114,25 @@ Extract a downloaded archive
 - Emits the extract percentage
 - completes when download complete
 
+-------------------------------------------
 
 ### redirect() 
 
 Redirect to the latest version of the app on this device
 
-
+-------------------------------------------
 
 ### info() 
 
 Retrieve information about the current installed build
 
-
+-------------------------------------------
 
 ### getVersions() 
 
 List downloaded versions on this device
 
-
+-------------------------------------------
 
 ### deleteVersion(version) 
 
