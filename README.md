@@ -88,6 +88,20 @@ Download an available and compatible update
 - Emits the download percentage
 - completes when download complete
 
+### update() 
+
+Complete a full update cycle (download, extract) with or without redirect
+
+**Parameters**
+
+**autoReload**: `boolean`
+- TRUE: Redirect when complete (default)
+- FALSE: Complete with no redirect
+
+**Returns**: `Observable<number>`
+- Emits the download then extract percentage
+- completes when update complete
+
 
 ### extract() 
 

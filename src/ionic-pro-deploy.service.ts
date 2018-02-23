@@ -70,7 +70,9 @@ export class IonicProDeployService {
   }
 
   /**
-   * Download an available and compatible update
+   * Complete a full update cycle (download, extract) with or without redirect
+   * @param {boolean} autoReload TRUE: Redirect when complete (default)
+   *                             FALSE: Complete with no redirect
    * @return {Observable<number>} Emits the download percentage
    * - completes when download complete
    */
