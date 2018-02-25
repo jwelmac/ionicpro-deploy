@@ -101,9 +101,16 @@ Complete a full update cycle (download, extract) with or without redirect
 - TRUE: Redirect when complete (default)
 - FALSE: Complete with no redirect
 
-**Returns**: `Observable<number>`
-- Emits the download then extract percentage
-- completes when update complete
+**Returns**: `Observable<UpdateProgress>`
+- Emits the download then extract percentage and the step being completed
+```ts
+interface UpdateProgress {
+  /** Name of the step being completed */
+  step: string;
+  /** Percent progress for the current step */
+  percent: number;
+}
+```
 
 -------------------------------------------
 ### extract() 

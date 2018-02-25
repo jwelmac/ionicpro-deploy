@@ -40,6 +40,8 @@ export interface IonicDeployInfo {
  * Update progress
  */
 export interface UpdateProgress {
+  /** Name of the step being completed */
   step: string;
+  /** Percent progress for the current step */
   percent: number;
 }

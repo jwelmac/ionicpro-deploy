@@ -73,14 +73,14 @@ export class IonicProDeployService {
    * Complete a full update cycle (download, extract) with or without redirect
    * @param {boolean} autoReload TRUE: Redirect when complete (default)
    *                             FALSE: Complete with no redirect
-   * @return {Observable<number>} - Emits the download then extract percentage
-   * - completes when update complete
+   * @return {Observable<UpdateProgress>}
+   * - Emits the download then extract percentage and the step being completed
    */
   @checkDeploy(true)
   update(autoReload: boolean = true): Observable<UpdateProgress> {
-    let progress: UpdateProgress;
+    let updateProgress: UpdateProgress;
     const errFunction = (observer) => (err: string) => observer.error(err);
-    const updateFn = (step: string) => percent => progress = {step, percent};
+    const updateFn = (step: string) => (percent: number) => updateProgress = {step, percent};
 
     const obs: Observable<UpdateProgress> = Observable.create((observer: any) => {
       this.download().subscribe(
