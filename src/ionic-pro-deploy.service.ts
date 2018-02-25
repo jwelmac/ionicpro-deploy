@@ -110,7 +110,8 @@ export class IonicProDeployService {
    */
   @checkDeploy(true)
   download(): Observable<number> {
-    return Observable.create((observer: any) => {
+    return Observable.create(async (observer: any) => {
+      await this.check();
       this.observeProgress(observer, 'download', 'true', 'downloadAvailable', true);
     });
   }

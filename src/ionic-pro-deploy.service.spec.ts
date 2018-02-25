@@ -27,6 +27,8 @@ function setupProgress(func: string) {
     for (const step of progress) {
       success(step);
     }
+    // Send complete
+    success('true');
   };
   return progress;
 }
@@ -132,138 +134,66 @@ describe('IonicProDeployService', () => {
       expect(service.extract).toHaveBeenCalled();
       expect(service.redirect).toHaveBeenCalled();
     });
-
-    // describe('should report', () => {
-    //   const method = 'update';
-
-      // it('progress when number emitted', done => {
-      //   // Setup download progress
-      //   const progress: number[] = setupProgress(method);
-
-      //   // Inject service and test
-      //   inject([IonicProDeployService], (service: IonicProDeployService) => {
-      //     let i = 0;
-      //     service[method]().subscribe(percent => {
-      //       expect(percent).toEqual(progress[i]);
-      //       if (++i === progress.length) {
-      //         done();
-      //       }
-      //     });
-      //   })();
-      // });
-
-      // it('complete when "true" emmitted', done => {
-      //   deploy.download = deployCallbacks('true');
-      //   inject([IonicProDeployService], (service: IonicProDeployService) => {
-      //     expect(service.extractComplete).toBeFalsy();
-      //     service[method]().subscribe(cb, cb, () => {
-      //       expect(service.extractComplete).toBeTruthy();
-      //       done();
-      //     });
-      //   })();
-      // });
-
-      // it('calls redirect when no parameter given', done => {
-      //   deploy.download = deployCallbacks('true');
-      //   inject([IonicProDeployService], (service: IonicProDeployService) => {
-      //     spyOn(service, 'redirect');
-      //     service[method]().subscribe(cb, cb, () => {
-      //       expect(service.redirect).toHaveBeenCalled();
-      //       done();
-      //     });
-      //   })();
-      // });
-
-      // it('does not call redirect when parameter is false', done => {
-      //   deploy.download = deployCallbacks('true');
-      //   inject([IonicProDeployService], (service: IonicProDeployService) => {
-      //     spyOn(service, 'redirect');
-      //     service[method](false).subscribe(cb, cb, () => {
-      //       expect(service.redirect).not.toHaveBeenCalled();
-      //       done();
-      //     });
-      //   })();
-      // });
-
-    //   it('handles errors appropriately', done => {
-    //     const err = 'Error fetching download';
-    //     deploy.download = deployCallbacks(null, err);
-    //     inject([IonicProDeployService], (service: IonicProDeployService) => {
-    //       service[method]().subscribe(cb, (error) => {
-    //         expect(error).toEqual(err);
-    //         done();
-    //       });
-    //     })();
-    //   });
-
-    //   it('throws errors if success not "true"', done => {
-    //     const success = 'false';
-    //     deploy.download = deployCallbacks(success);
-    //     inject([IonicProDeployService], (service: IonicProDeployService) => {
-    //       service[method]().subscribe(cb, (error) => {
-    //         expect(error).toEqual(success);
-    //         done();
-    //       });
-    //     })();
-    //   });
-    // });
   });
 
   describe('download method', () => {
-    it('should return an observable', inject([IonicProDeployService], (service: IonicProDeployService) => {
+    let service: IonicProDeployService,
+        progress: number[];
+    beforeEach(inject([IonicProDeployService], (proDeploy: IonicProDeployService) => {
+      service = proDeploy;
+      spyOn(service, 'check').and.returnValue(true);
+      progress = setupProgress('download');
+    }));
+
+    it('should return an observable', () => {
       deploy.download = deployCallbacks('true');
       const obs = service.download();
       expect(obs).toEqual(jasmine.any(Observable));
-    }));
+    });
+
+    it('should call check method', done => {
+      service.download().subscribe(null, null, () => {
+        expect(service.check).toHaveBeenCalled();
+        done();
+      });
+    });
 
     describe('should report', () => {
       it('progress when number emitted', done => {
-        // Setup download progress
-        const progress: number[] = setupProgress('download');
-
-        // Inject service and test
-        inject([IonicProDeployService], (service: IonicProDeployService) => {
-          let i = 0;
-          service.download().subscribe(percent => {
-            expect(percent).toEqual(progress[i]);
-            if (++i === progress.length) {
-              done();
-            }
-          });
-        })();
+        let i = 0;
+        service.download().subscribe(percent => {
+          expect(percent).toEqual(progress[i]);
+          if (++i === progress.length) {
+            done();
+          }
+        });
       });
 
       it('complete when "true" emmitted', done => {
         deploy.download = deployCallbacks('true');
-        inject([IonicProDeployService], (service: IonicProDeployService) => {
-          expect(service.downloadAvailable).toBeFalsy();
-          service.download().subscribe(cb, cb, () => {
-            expect(service.downloadAvailable).toBeTruthy();
-            done();
-          });
-        })();
+        expect(service.downloadAvailable).toBeFalsy();
+        service.download().subscribe(cb, cb, () => {
+          expect(service.downloadAvailable).toBeTruthy();
+          done();
+        });
       });
 
       it('handles errors appropriately', done => {
         const err = 'Error fetching download';
         deploy.download = deployCallbacks(null, err);
-        inject([IonicProDeployService], (service: IonicProDeployService) => {
-          service.download().subscribe(cb, (error) => {
-            expect(error).toEqual(err);
-            done();
-          });
-        })();
+        service.download().subscribe(cb, (error) => {
+          expect(error).toEqual(err);
+          done();
+        });
       });
 
       it('throws errors if success not "true"', done => {
         const success = 'false';
         deploy.download = deployCallbacks(success);
-        inject([IonicProDeployService], (service: IonicProDeployService) => {
-          service.download().subscribe(cb, (error) => {
-            expect(error).toEqual(success);
-            done();
-          });
-        })();
+        service.download().subscribe(cb, (error) => {
+          expect(error).toEqual(success);
+          done();
+        });
       });
     });
   });
